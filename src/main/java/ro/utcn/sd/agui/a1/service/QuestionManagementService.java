@@ -26,7 +26,7 @@ public class QuestionManagementService {
     }
 
     @Transactional
-    public void addQuestion(int userId, String title, String text, String tags) {
+    public int addQuestion(int userId, String title, String text, String tags) {
 
         TagRepository tagRepository = repositoryFactory.createTagRepository();
         QuestionRepository questionRepository = repositoryFactory.createQuestionRepository();
@@ -49,16 +49,11 @@ public class QuestionManagementService {
                 newTag = tagRepository.save(newTag); //add the tag object in the persistence
                 tagRepository.addTagToQuestion(newTag, question); //link the tag to the question in persistence
             }
-
-
         }
+        return question.getQuestionId();
 
     }
 
-    @Transactional
-    public void addTagToQuestion(Tag tag, Question question){
-        repositoryFactory.createTagRepository().addTagToQuestion(tag, question);
-    }
 
     @Transactional
     public List<Question> filterQuestionsByTag(Tag tag){

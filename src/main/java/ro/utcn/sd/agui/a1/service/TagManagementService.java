@@ -20,6 +20,7 @@ public class TagManagementService {
         return repositoryFactory.createTagRepository().save(tag);
     }
 
+    @Transactional
     public Tag findTagByName(String name){
 
         return repositoryFactory.createTagRepository().findByName(name).orElseThrow(TagNotFoundException::new);

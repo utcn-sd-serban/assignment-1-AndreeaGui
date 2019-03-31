@@ -24,6 +24,8 @@ public class ConsoleController implements CommandLineRunner {
     private final QuestionManagementService questionManagementService;
     private final TagManagementService tagManagementService;
 
+    private User currentUser;
+
     @Override
     public void run(String... args) throws Exception{
 
@@ -32,6 +34,7 @@ public class ConsoleController implements CommandLineRunner {
         boolean done = false;
 
         while(!done){
+
             System.out.println("Enter a command: ");
             String command = scanner.nextLine().trim();
             try{
@@ -49,9 +52,26 @@ public class ConsoleController implements CommandLineRunner {
 
     }
 
-    private boolean handleCommand(String command){
-        System.out.println("Your command is: " +  command);
-        switch(command){
+    private boolean handleCommand(String command) {
+
+        switch (command){
+            case "login":
+                handleLogin();
+                return false;
+            case "logout":
+                handleLogout();
+                return false;
+            case "exit":
+                return true;
+        }
+
+        if (currentUser == null){
+            System.out.println("You need to be logged in to issue commands! ");
+            return false;
+        }
+
+        System.out.println("Your command is: " + command);
+        switch (command) {
             case "list users":
                 handleListUsers();
                 return false;
@@ -61,8 +81,8 @@ public class ConsoleController implements CommandLineRunner {
             case "register as user":
                 handleRegisterAsUser();
                 return false;
-            case "login":
-                handleLogin();
+            case "logout":
+                handleLogout();
                 return false;
             case "add question":
                 handleAddQuestion();
@@ -110,9 +130,10 @@ public class ConsoleController implements CommandLineRunner {
         String username = scanner.nextLine();
         System.out.println("Password: ");
         String password = scanner.nextLine();
-        boolean loginnHappened = userManagementService.login(username, password);
-        if(loginnHappened){
+        Optional<User> logged = userManagementService.login(username, password);
+        if(logged.isPresent()){
             System.out.println(username+" is logged in.");
+            currentUser = logged.get();
         }
         else
         {
@@ -120,14 +141,14 @@ public class ConsoleController implements CommandLineRunner {
         }
     }
 
+    private void handleLogout(){
+        System.out.println("You have logged out.");
+        currentUser = null;
+    }
+
     private void handleAddQuestion(){
 
-        if( ! userManagementService.getCurrentUser().isPresent()){
-            System.out.println("Login for adding a question.");
-            return;
-        }
 
-        User currentUser = userManagementService.getCurrentUser().get();
         System.out.println("Title: ");
         String title = scanner.nextLine();
         System.out.println("Text: ");
@@ -140,10 +161,7 @@ public class ConsoleController implements CommandLineRunner {
     }
 
     private void handleFilterQuestionsByTag(){
-        if( ! userManagementService.getCurrentUser().isPresent()){
-            System.out.println("Login for filtering questions.");
-            return;
-        }
+
 
         System.out.println("Write a tag: ");
         String tagName = scanner.nextLine();
@@ -155,10 +173,7 @@ public class ConsoleController implements CommandLineRunner {
     }
 
     private void handleFilterQuestionsByTitle(){
-        if( ! userManagementService.getCurrentUser().isPresent()){
-            System.out.println("Login for filtering questions.");
-            return;
-        }
+
 
         System.out.println("Write the text: ");
         String text = scanner.nextLine();

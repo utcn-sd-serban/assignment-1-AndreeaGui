@@ -14,7 +14,7 @@ import java.util.Optional;
 public class UserManagementService {
 
     private final RepositoryFactory repositoryFactory;
-    private User currentUser;
+
 
     @Transactional
     public List<User> listAllUsers(){
@@ -38,23 +38,18 @@ public class UserManagementService {
     }
 
     @Transactional
-    public boolean login(String username, String password){
+    public Optional<User> login(String username, String password){
         Optional<User> foundUser = repositoryFactory.createUserRepository().findByUsername(username);
         if(foundUser.isPresent()){
             if(foundUser.get().getPassword().equals(password))
             {
-                currentUser = foundUser.get();
-                return true;
+                return foundUser;
             }
 
         }
-        return false;
+        return Optional.empty();
     }
 
-    @Transactional
-    //I return an optional because there may or  may not be a current user logged in in this session
-    public Optional<User> getCurrentUser(){
-        return Optional.ofNullable(currentUser);
-    }
+
 
 }

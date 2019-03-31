@@ -10,6 +10,7 @@ import ro.utcn.sd.agui.a1.persistence.UserRepository;
 import ro.utcn.sd.agui.a1.persistence.memory.InMemoryRepositoryFactory;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 public class UserManagementServiceTest {
     private static RepositoryFactory createMockedFactory(){
@@ -41,4 +42,15 @@ public class UserManagementServiceTest {
                 .equals("Whatever"));
         Assert.assertEquals(registered, actual);
     }
+
+    @Test
+    //login invalid
+    public void loginInvalidTest(){
+        RepositoryFactory factory = createMockedFactory();
+        UserManagementService service = new UserManagementService(factory);
+        boolean logged = service.login("CEva", "gresit").isPresent(); //false to be
+        Assert.assertFalse(logged);
+    }
+
+
 }
