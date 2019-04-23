@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ro.utcn.sd.agui.a1.persistence.AnswerVoteRepository;
+import ro.utcn.sd.agui.a1.persistence.QuestionVoteRepository;
 import ro.utcn.sd.agui.a1.persistence.RepositoryFactory;
 
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name="a1.repository-type", havingValue = "JDBC")
+@ConditionalOnProperty(name = "a1.repository-type", havingValue = "JDBC")
 public class JdbcRepositoryFactory implements RepositoryFactory {
 
     private final JdbcTemplate template;
@@ -20,18 +22,28 @@ public class JdbcRepositoryFactory implements RepositoryFactory {
         return new JdbcUserRepository(template);
     }
 
-    public JdbcQuestionRepository createQuestionRepository(){
+    public JdbcQuestionRepository createQuestionRepository() {
 
         return new JdbcQuestionRepository(template);
     }
 
-    public JdbcAnswerRepository createAnswerRepository(){
+    public JdbcAnswerRepository createAnswerRepository() {
 
-        return new JdbcAnswerRepository();
+        return new JdbcAnswerRepository(template);
     }
 
-    public JdbcTagRepository createTagRepository(){
+    public JdbcTagRepository createTagRepository() {
 
         return new JdbcTagRepository(template);
+    }
+
+    @Override
+    public AnswerVoteRepository createAnswerVoteRepository() {
+        return new JdbcAnswerVoteRepository(template);
+    }
+
+    @Override
+    public QuestionVoteRepository createQuestionVoteRepository() {
+        return new JdbcQuestionVoteRepository(template);
     }
 }

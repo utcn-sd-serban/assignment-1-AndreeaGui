@@ -19,11 +19,9 @@ public class JdbcTagRepository implements TagRepository {
 
     @Override
     public Tag save(Tag tag) {
-        if(tag.getTagId()==null){
+        if (tag.getTagId() == null) {
             tag.setTagId(insert(tag));
-        }
-        else
-        {
+        } else {
             update(tag);
         }
         return tag;
@@ -32,7 +30,7 @@ public class JdbcTagRepository implements TagRepository {
     @Override
     public Optional<Tag> findById(int id) {
         List<Tag> tags = template.query("SELECT * FROM tag WHERE tag_id = ?",
-                new Object[] {id},
+                new Object[]{id},
                 ((resultSet, i) -> new Tag(
                         resultSet.getInt("tag_id"),
                         resultSet.getString("name")
@@ -43,7 +41,7 @@ public class JdbcTagRepository implements TagRepository {
 
     @Override
     public void remove(Tag tag) {
-        template.update("DELETE * FROM tag WHERE tag_id = ?", tag.getTagId());
+        template.update("DELETE FROM tag WHERE tag_id = ?", tag.getTagId());
     }
 
     @Override
@@ -55,13 +53,13 @@ public class JdbcTagRepository implements TagRepository {
                 ));
     }
 
-    private Integer insert(Tag tag){
+    private Integer insert(Tag tag) {
 
         SimpleJdbcInsert insert = new SimpleJdbcInsert(template);
         insert.setTableName("tag");
         insert.usingGeneratedKeyColumns("tag_id");
 
-        Map<String, Object>  data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
 
         data.put("name", tag.getName());
 
@@ -69,12 +67,12 @@ public class JdbcTagRepository implements TagRepository {
 
     }
 
-    private void update(Tag tag){
+    private void update(Tag tag) {
         template.update("UPDATE tag SET tag_name = ? WHERE tag_id = ? ", tag.getName(), tag.getTagId());
     }
 
     @Override
-    public void addTagToQuestion(Tag tag, Question question){
+    public void addTagToQuestion(Tag tag, Question question) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(template);
         insert.setTableName("question_tag");
         insert.usingGeneratedKeyColumns("question_tag_id");
@@ -87,9 +85,9 @@ public class JdbcTagRepository implements TagRepository {
     }
 
     @Override
-    public Optional<Tag> findByName(String name){
+    public Optional<Tag> findByName(String name) {
         List<Tag> tags = template.query("SELECT * FROM tag WHERE name = ?",
-                new Object[] {name},
+                new Object[]{name},
                 ((resultSet, i) -> new Tag(
                         resultSet.getInt("tag_id"),
                         resultSet.getString("name")

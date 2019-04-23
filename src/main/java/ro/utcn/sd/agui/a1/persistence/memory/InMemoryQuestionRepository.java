@@ -21,10 +21,10 @@ public class InMemoryQuestionRepository implements QuestionRepository {
     @Override
     public Question save(Question question) {
 
-        if(question.getQuestionId()==null){
+        if (question.getQuestionId() == null) {
             question.setQuestionId(current.incrementAndGet());
         }
-       data.put(question.getQuestionId(), question);
+        data.put(question.getQuestionId(), question);
         return question;
     }
 
@@ -45,18 +45,17 @@ public class InMemoryQuestionRepository implements QuestionRepository {
     }
 
     @Override
-    public List<Question> filterByTag(Tag tag){
+    public List<Question> filterByTag(Tag tag) {
         List<Question> filteredQuestions = new ArrayList<>();
         List<Question> questions = new ArrayList<>(data.values());
-        for (Question questionIterator: questions){
+        for (Question questionIterator : questions) {
             List<Tag> tags = questionIterator.getTags();
 
-            if(tags.stream().anyMatch(x->x.getName().equals(tag.getName()))) {
+            if (tags.stream().anyMatch(x -> x.getName().equals(tag.getName()))) {
                 filteredQuestions.add(questionIterator);
             }
 
         }
-
 
 
         return filteredQuestions;

@@ -1,5 +1,7 @@
 package ro.utcn.sd.agui.a1.persistence;
 
+
+
 public interface RepositoryFactory {
 
     UserRepository createUserRepository();
@@ -9,4 +11,9 @@ public interface RepositoryFactory {
     AnswerRepository createAnswerRepository();
 
     TagRepository createTagRepository();
+
+    AnswerVoteRepository createAnswerVoteRepository();
+
+    QuestionVoteRepository createQuestionVoteRepository();
+
 }

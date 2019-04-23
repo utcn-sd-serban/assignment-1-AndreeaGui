@@ -22,7 +22,7 @@ public class Question {
     private List<Tag> tags;
 
     //one to many answer relationship
-    private List<Answer> answers;
+    //private List<Answer> answers;
 
     public Question(Integer questionId, Integer userId, String title, String text, Timestamp dateTime) {
         this.questionId = questionId;
@@ -31,6 +31,6 @@ public class Question {
         this.text = text;
         this.dateTime = dateTime;
         this.tags = new ArrayList<>();
-        this.tags = new ArrayList<>();
+        //this.tags = new ArrayList<>();
     }
 }

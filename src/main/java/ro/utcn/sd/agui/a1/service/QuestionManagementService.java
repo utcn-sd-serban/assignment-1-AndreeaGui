@@ -1,7 +1,6 @@
 package ro.utcn.sd.agui.a1.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.utcn.sd.agui.a1.entity.Question;
@@ -10,7 +9,6 @@ import ro.utcn.sd.agui.a1.persistence.QuestionRepository;
 import ro.utcn.sd.agui.a1.persistence.RepositoryFactory;
 import ro.utcn.sd.agui.a1.persistence.TagRepository;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,7 +19,7 @@ public class QuestionManagementService {
     private final RepositoryFactory repositoryFactory;
 
     @Transactional
-    public List<Question> listAllQuestions(){
+    public List<Question> listAllQuestions() {
         return repositoryFactory.createQuestionRepository().findAll();
     }
 
@@ -32,19 +30,18 @@ public class QuestionManagementService {
         QuestionRepository questionRepository = repositoryFactory.createQuestionRepository();
 
         Timestamp dateTime = new Timestamp(System.currentTimeMillis());
-        //created the object
+        //create the object
         Question question = new Question(null, userId, title, text, dateTime);
         //save the object in the persistence
         questionRepository.save(question);
 
         String[] tagNames = tags.split("\\s");
         List<Tag> tagsOfQuestion = new ArrayList<>(); //the tags of the question as objects
-        for (String iterationTagName: tagNames){
+        for (String iterationTagName : tagNames) {
             Optional<Tag> foundTag = tagRepository.findByName(iterationTagName);
-            if(foundTag.isPresent()){
+            if (foundTag.isPresent()) {
                 tagRepository.addTagToQuestion(foundTag.get(), question);
-            }
-            else{
+            } else {
                 Tag newTag = new Tag(null, iterationTagName); //create tag object
                 newTag = tagRepository.save(newTag); //add the tag object in the persistence
                 tagRepository.addTagToQuestion(newTag, question); //link the tag to the question in persistence
@@ -56,8 +53,8 @@ public class QuestionManagementService {
 
 
     @Transactional
-    public List<Question> filterQuestionsByTag(Tag tag){
-        List<Question> questions =  repositoryFactory.createQuestionRepository().filterByTag(tag).stream()
+    public List<Question> filterQuestionsByTag(Tag tag) {
+        List<Question> questions = repositoryFactory.createQuestionRepository().filterByTag(tag).stream()
                 .sorted(Comparator.comparing(Question::getDateTime))
                 .collect(Collectors.toList());
         Collections.reverse(questions);
@@ -65,12 +62,12 @@ public class QuestionManagementService {
     }
 
     @Transactional
-    public List<Question> filterQuestionsByTitle(String title){
+    public List<Question> filterQuestionsByTitle(String title) {
 
-        List<Question> questions = repositoryFactory.createQuestionRepository().findAll().stream().filter(x->x.getTitle().toLowerCase()
+        List<Question> questions = repositoryFactory.createQuestionRepository().findAll().stream().filter(x -> x.getTitle().toLowerCase()
                 .contains(title.toLowerCase())).sorted(Comparator.comparing(Question::getDateTime))
                 .collect(Collectors.toList());
-         Collections.reverse(questions);
+        Collections.reverse(questions);
         return questions;
     }
 }

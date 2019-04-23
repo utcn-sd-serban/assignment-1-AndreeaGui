@@ -14,5 +14,5 @@ public class QuestionVote {
     private Integer voteId;
     private Integer questionId;
     private Integer userId;
-    private boolean type;
+    private Boolean type;
 }

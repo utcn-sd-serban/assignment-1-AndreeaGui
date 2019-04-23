@@ -20,11 +20,9 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public User save(User user) {
-        if(user.getUserId() != null){
+        if (user.getUserId() != null) {
             update(user);
-        }
-        else
-        {
+        } else {
             int id = insert(user);
             user.setUserId(id);
         }
@@ -34,8 +32,8 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> findById(int id) {
         List<User> users = template.query("SELECT * FROM user WHERE user_id = ?",
-                new Object[] {id},
-                (resultSet, i)-> new User(
+                new Object[]{id},
+                (resultSet, i) -> new User(
                         resultSet.getInt("user_id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
@@ -50,13 +48,13 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public void remove(User user) {
-        template.update("DELETE * FROM user where id = ?", user.getUserId());
+        template.update("DELETE FROM user WHERE user_id = ?", user.getUserId());
     }
 
     @Override
     public List<User> findAll() {
         return template.query("SELECT * FROM user",
-                (resultSet, i)-> new User(
+                (resultSet, i) -> new User(
                         resultSet.getInt("user_id"),
                         resultSet.getString("username"),
                         resultSet.getString("password"),
@@ -68,13 +66,13 @@ public class JdbcUserRepository implements UserRepository {
     }
 
 
-    private int  insert(User user){
+    private int insert(User user) {
         //we adopt this method because we need to obtain the auto-incremented key
         SimpleJdbcInsert insert = new SimpleJdbcInsert(template);
         insert.setTableName("user");
         insert.setGeneratedKeyName("user_id");
 
-        Map<String, Object> data= new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         //the data map makes the link between column names and pojo fileds
         data.put("username", user.getUsername());
         data.put("password", user.getPassword());
@@ -82,26 +80,26 @@ public class JdbcUserRepository implements UserRepository {
         data.put("type", user.getType());
         data.put("banned", user.getBanned());
 
-         return insert.executeAndReturnKey(data).intValue();
+        return insert.executeAndReturnKey(data).intValue();
     }
 
-    private void update(User user){
+    private void update(User user) {
         template.update("UPDATE user SET username = ?, password = ?, score = ?, type = ?, banned = ? WHERE user_id=?",
                 user.getUsername(), user.getPassword(), user.getScore(), user.getType(), user.getBanned(), user.getUserId());
     }
 
     @Override
-    public Optional<User> findByUsername(String username){
+    public Optional<User> findByUsername(String username) {
         List<User> users = template.query("SELECT * FROM user WHERE username = ?",
-                new Object[] {username},
+                new Object[]{username},
                 (resultSet, i) -> new User(
-                resultSet.getInt("user_id"),
-                resultSet.getString("username"),
-                resultSet.getString("password"),
-                resultSet.getInt("score"),
-                resultSet.getString("type"),
-                resultSet.getBoolean("banned")
-        ));
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getInt("score"),
+                        resultSet.getString("type"),
+                        resultSet.getBoolean("banned")
+                ));
 
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }

@@ -16,6 +16,6 @@ public interface QuestionRepository {
 
     List<Question> findAll();
 
-    List<Question> filterByTag (Tag tag);
+    List<Question> filterByTag(Tag tag);
 
 }

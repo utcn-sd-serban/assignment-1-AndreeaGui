@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import ro.utcn.sd.agui.a1.entity.Question;
 import ro.utcn.sd.agui.a1.entity.Tag;
 import ro.utcn.sd.agui.a1.persistence.QuestionRepository;
+import ro.utcn.sd.agui.a1.persistence.jdbc.mapper.QuestionMapper;
 
 import java.util.*;
 
@@ -16,16 +17,12 @@ public class JdbcQuestionRepository implements QuestionRepository {
 
     @Override
     public Question save(Question question) {
-        if(question.getQuestionId()!=null){
+        if (question.getQuestionId() != null) {
             update(question);
-        }
-        else
-        {
+        } else {
             int id = insert(question);
             question.setQuestionId(id);
         }
-
-
 
         return question;
     }
@@ -34,41 +31,29 @@ public class JdbcQuestionRepository implements QuestionRepository {
     public Optional<Question> findById(int id) {
         List<Question> questions = template.query("SELECT * FROM question WHERE question_id = ?",
                 new Object[]{id},
-                (resultSet, i) -> new Question(
-                        resultSet.getInt("question_id"),
-                        resultSet.getInt("user_id"),
-                        resultSet.getString("title"),
-                        resultSet.getString("text"),
-                        resultSet.getTimestamp("date_time")
-                ));
+                new QuestionMapper());
         return questions.isEmpty() ? Optional.empty() : Optional.of(questions.get(0));
     }
 
     @Override
     public void remove(Question question) {
-        template.update("DELETE * FROM question WHERE question_id = ?", question.getQuestionId() );
+        template.update("DELETE FROM question WHERE question_id = ?", question.getQuestionId());
     }
 
     @Override
     public List<Question> findAll() {
         List<Question> questions = new ArrayList<>();
-        questions =  template.query("SELECT * FROM question",
-                (resultSet, i) -> new Question(
-                        resultSet.getInt("question_id"),
-                        resultSet.getInt("user_id"),
-                        resultSet.getString("title"),
-                        resultSet.getString("text"),
-                        resultSet.getTimestamp("date_time")
-                ));
+        questions = template.query("SELECT * FROM question",
+                new QuestionMapper());
 
-    for(Question iterationQuestion : questions){
+        for (Question iterationQuestion : questions) {
 
-        iterationQuestion.setTags(findAllTagsOfQuestion(iterationQuestion));
-    }
+            iterationQuestion.setTags(findAllTagsOfQuestion(iterationQuestion));
+        }
         return questions;
     }
 
-    private int insert(Question question){
+    private int insert(Question question) {
 
         SimpleJdbcInsert insert = new SimpleJdbcInsert(template);
         insert.setTableName("question");
@@ -83,14 +68,15 @@ public class JdbcQuestionRepository implements QuestionRepository {
         return insert.executeAndReturnKey(data).intValue();
     }
 
-    private void update(Question question){
+    private void update(Question question) {
         template.update("UPDATE question SET user_id = ?, title = ?, text = ?, date_time = ? WHERE question_id = ?",
-                question.getUserId(), question.getTitle(), question.getText(), question.getDateTime(), question.getQuestionId());
+                question.getUserId(), question.getTitle(), question.getText(), question.getDateTime(),
+                question.getQuestionId());
     }
 
-    private List<Tag> findAllTagsOfQuestion(Question question){
+    private List<Tag> findAllTagsOfQuestion(Question question) {
         return template.query("SELECT * FROM tag WHERE tag_id IN (SELECT tag_id FROM question_tag WHERE question_id = ?)",
-                new Object [] { question.getQuestionId()},
+                new Object[]{question.getQuestionId()},
                 (resultSet, i) -> new Tag(
                         resultSet.getInt("tag_id"),
                         resultSet.getString("name")
@@ -98,19 +84,13 @@ public class JdbcQuestionRepository implements QuestionRepository {
     }
 
     @Override
-    public List<Question> filterByTag(Tag tag){
+    public List<Question> filterByTag(Tag tag) {
         List<Question> questions = new ArrayList<>();
         questions = template.query("SELECT * FROM question JOIN question_tag ON question.question_id = question_tag.question_id WHERE tag_id = ?",
-                new Object[] {tag.getTagId()},
-                (resultSet, i) -> new Question(
-                        resultSet.getInt("question_id"),
-                        resultSet.getInt("user_id"),
-                        resultSet.getString("title"),
-                        resultSet.getString("text"),
-                        resultSet.getTimestamp("date_time")
-                ));
+                new Object[]{tag.getTagId()},
+                new QuestionMapper());
 
-        for(Question iterationQuestion : questions){
+        for (Question iterationQuestion : questions) {
 
             iterationQuestion.setTags(findAllTagsOfQuestion(iterationQuestion));
         }
